@@ -1,13 +1,23 @@
 import org.junit.Assert;
 import org.junit.Test;
+import org.mozilla.javascript.ast.AstRoot;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
 public class TestFileFinder {
     @Test
     public void testFileFinderPropTypes(){
-        Set<String> result = new FileFinderManager("src/test/resources/prop-types").getLocalFiles();
+        AstRoot root = null;
+        try {
+            root = new ParsingUtility("src/test/resources/prop-types/index.js").parse();
+        } catch (IOException e) {
+            Assert.assertFalse(true);
+        }
+        RequireNodeVisitor fileVisitor = new RequireNodeVisitor("src/test/resources/prop-types/index.js");
+        root.visit(fileVisitor);
+        Set result = fileVisitor.getLocalFiles();
         Set<String> expect = new HashSet<>();
         expect.add("./factoryWithTypeCheckers");
         expect.add("./lib/ReactPropTypesSecret");
@@ -19,7 +29,15 @@ public class TestFileFinder {
 
     @Test
     public void testFileFinderWithGivenExample(){
-        Set<String> result = new FileFinderManager("src/test/resources/exampleModule").getLocalFiles();
+        AstRoot root = null;
+        try {
+            root = new ParsingUtility("src/test/resources/exampleModule/index.js").parse();
+        } catch (IOException e) {
+            Assert.assertFalse(true);
+        }
+        RequireNodeVisitor fileVisitor = new RequireNodeVisitor("src/test/resources/exampleModule/index.js");
+        root.visit(fileVisitor);
+        Set result = fileVisitor.getLocalFiles();
         Set<String> expect = new HashSet<>();
         expect.add("./a");
         expect.add("./b");
